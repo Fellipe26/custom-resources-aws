@@ -2,6 +2,7 @@
 Custom resources aws
 
 
+<<<<<<< HEAD
 **How to use this custom resource**
 
 --
@@ -396,3 +397,6 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: !GetAtt 'TrailLogGroup.Arn'
+=======
+teste
+>>>>>>> e24c1733e6c7df2f90860a82f52ebf668f22a496

@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Criacao de lambdas custom resources
+
+Parameters:
+  Env:
+    Type: String
+
+  SecurityGroupId:
+    Type: String
+
+Conditions:
+  isItDevOrHml:
+    !Or
+      - !Equals [ !Ref Env, dev ]
+      - !Equals [ !Ref Env, hml ]
+
+Resources:
+  s3FolderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: Invoke
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - s3:*
+                Resource: "*"
+        - PolicyName: InvokeCf
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - cloudformation:*
+                Resource: "*"                
+  targetEvent:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: Invoke
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - events:*
+                  - iam:GetRole
+                  - iam:PassRole
+                Resource: "*"
+        - PolicyName: InvokeCf
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - cloudformation:*
+                Resource: "*"
+
+  createFolderS3:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: custom-resource-s3-folder
+      Handler: s3-folder-resource.lambda_handler
+      CodeUri: ./src/create-folder-s3
+      Runtime: python3.6
+      MemorySize: 128
+      Timeout: 30
+      Role: !GetAtt s3FolderRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroupId
+        SubnetIds:
+          - !ImportValue vpc-subnetPrvA
+          - !If
+              - isItDevOrHml
+              - !ImportValue vpc-subnetPrvB
+              - !ImportValue vpc-subnetPrvC
+
+  targetEventRule:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: custom-resource-put-target-rule
+      Handler: putTarget.lambda_handler
+      CodeUri: ./src/put-target-rule
+      Runtime: python3.6
+      MemorySize: 128
+      Timeout: 30
+      Role: !GetAtt targetEvent.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroupId
+        SubnetIds:
+          - !ImportValue vpc-subnetPrvA
+          - !If
+              - isItDevOrHml
+              - !ImportValue vpc-subnetPrvB
+              - !ImportValue vpc-subnetPrvC
+
+Outputs:
+  createFolderS3Arn:
+    Description: Information about the value
+    Value: !GetAtt createFolderS3.Arn
+    Export: 
+      Name: S3InfoResource
+
+  targetEventRuleArn:
+    Description: Information about the value
+    Value: !GetAtt targetEventRule.Arn
+    Export: 
+      Name: targetEventInfoResource      

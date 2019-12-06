@@ -95,11 +95,11 @@ Resources:
         SecurityGroupIds:
           - !Ref SecurityGroupId
         SubnetIds:
-          - !ImportValue vpc-subnetPrvA
+          - !ImportValue subnetPrvA
           - !If
               - isItDevOrHml
-              - !ImportValue vpc-subnetPrvB
-              - !ImportValue vpc-subnetPrvC
+              - !ImportValue subnetPrvB
+              - !ImportValue subnetPrvC
 
   targetEventRule:
     Type: AWS::Serverless::Function
@@ -115,11 +115,11 @@ Resources:
         SecurityGroupIds:
           - !Ref SecurityGroupId
         SubnetIds:
-          - !ImportValue vpc-subnetPrvA
+          - !ImportValue subnetPrvA
           - !If
               - isItDevOrHml
-              - !ImportValue vpc-subnetPrvB
-              - !ImportValue vpc-subnetPrvC
+              - !ImportValue subnetPrvB
+              - !ImportValue subnetPrvC
 
 Outputs:
   createFolderS3Arn:

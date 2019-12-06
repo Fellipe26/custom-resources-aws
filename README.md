@@ -3,7 +3,7 @@ Custom resources aws
 
 **How to use this custom resource**
 
-*Create folder s3*
+***Create folder s3***
 
 ```
 AWSTemplateFormatVersion: '2010-09-09'
@@ -83,7 +83,7 @@ Outputs:
 
 
 
-*Create put-target for aws batch*
+***Create put-target for aws batch***
 
 ```
 AWSTemplateFormatVersion: '2010-09-09'

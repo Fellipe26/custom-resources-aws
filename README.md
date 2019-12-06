@@ -5,7 +5,8 @@ Custom resources aws
 
 *Create folder s3*
 
-``` AWSTemplateFormatVersion: '2010-09-09'
+```
+AWSTemplateFormatVersion: '2010-09-09'
 Description: CF automation template Create Folder for Bucket
 
 Parameters:
@@ -77,13 +78,15 @@ Outputs:
     Description: DomainName of the AWS S3 bucket
     Export:
       Name:
-        'Fn::Sub': '${AWS::StackName}-BucketDomainName' ```
+        'Fn::Sub': '${AWS::StackName}-BucketDomainName'
+```
 
---------------------------------------------------------------------
+
 
 *Create put-target for aws batch*
 
-``` AWSTemplateFormatVersion: '2010-09-09'
+```
+AWSTemplateFormatVersion: '2010-09-09'
 Description: CF automation template put-target fow aws batch
 
 Parameters:
@@ -393,3 +396,4 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: !GetAtt 'TrailLogGroup.Arn'
+```
